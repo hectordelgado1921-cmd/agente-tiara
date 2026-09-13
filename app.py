@@ -473,14 +473,14 @@ st.markdown('<div class="section-title">Estado del barco</div>', unsafe_allow_ht
 left, right = st.columns([1.35, 1])
 with left:
     st.markdown("#### 🚨 Alertas")
-    if kb["alerts"]:
-        for a in kb["alerts"][:12]:
+    if kb.get("alerts", []):
+        for a in kb.get("alerts", [])[:12]:
             icon = "🔴" if a["priority"] == "HIGH" else "🟠"
             st.markdown(
                 f'<div class="alert-card">{icon} <b>{a["type"]}</b><br>{a["message"]}</div>',
                 unsafe_allow_html=True,
             )
-        if len(kb["alerts"]) > 12:
+        if len(kb.get("alerts", [])) > 12:
             st.caption(f"Mostrando 12 de {len(kb['alerts'])} alertas.")
     else:
         st.success("No hay alertas automáticas.")
