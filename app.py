@@ -431,7 +431,7 @@ records = sum(len(kb[g]) for g in (
     "maintenance_records", "log_records", "inventory_items", "fuel_records",
     "budget_records", "invoice_records", "cleaning_records", "documents"
 ))
-alerts_count = len(kb["alerts"])
+alerts_count = len(kb.get("alerts", []))
 maintenance_count = len(kb["maintenance_records"])
 
 c1, c2, c3, c4 = st.columns(4)
