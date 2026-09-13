@@ -445,3 +445,10 @@ with st.container():
     with st.expander("Ver hojas"):
         for sheet_name in kb["sheets"]:
             st.write(f"• {sheet_name}")
+            st.markdown("""
+<style>
+.stApp {
+    background-color: #0e1117;
+}
+</style>
+""", unsafe_allow_html=True)
