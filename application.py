@@ -17,6 +17,8 @@ import streamlit as st
 # ============================================================
 
 ROOT = Path(__file__).resolve().parent
+APP_VERSION = "2.1.0"
+APP_UPDATED = "13/09/2026"
 DATA_DIR = ROOT / "data"
 JSON_FILE = DATA_DIR / "base_conocimiento_tiara_septiembre_2026_v2.json"
 JSON_FILE_OLD = DATA_DIR / "base_conocimiento_tiara_septiembre_2026.json"
@@ -176,7 +178,7 @@ def normalize_loaded_data(data):
         "documents_records": [],
     }
 
-    out["metadata"]["version"] = "2.0-compatible"
+    out["metadata"]["version"] = APP_VERSION
 
     # Mantenimiento: normalizar los nombres de columnas de la base 1.0.
     for rec in data.get("maintenance_records", []):
@@ -573,10 +575,10 @@ def build_from_uploaded_excel(uploaded_file):
     # Límite de seguridad razonable para evitar cargar accidentalmente un
     # archivo enorme. El límite de Streamlit también puede existir en el
     # servidor, pero este control ocurre dentro de la aplicación.
-    max_bytes = 250 * 1024 * 1024
+    max_bytes = 500 * 1024 * 1024
     declared_size = getattr(uploaded_file, "size", None)
     if declared_size and declared_size > max_bytes:
-        raise ValueError("El Excel supera el límite de 250 MB de esta aplicación.")
+        raise ValueError("El Excel supera el límite de 500 MB de esta aplicación.")
 
     h = hashlib.sha256()
 
@@ -609,6 +611,7 @@ def build_from_uploaded_excel(uploaded_file):
 
         # Metadatos de la carga actual.
         data["metadata"]["upload_sha256"] = h.hexdigest()
+        data["metadata"]["version"] = APP_VERSION
         data["metadata"]["source_file"] = uploaded_file.name
         data["metadata"]["source_size_mb"] = round(
             temp_path.stat().st_size / (1024 * 1024), 2
@@ -1635,14 +1638,18 @@ with st.sidebar:
         "Carga el Excel nuevo del barco. La aplicación lo procesa internamente "
         "y reemplaza la base activa de esta sesión."
     )
+    st.caption("Límite de carga configurado: 500 MB")
 
     uploaded_file = st.file_uploader(
         "Seleccionar Excel",
         type=["xlsx", "xlsm"],
         key="tiara_excel_uploader",
+        max_upload_size=500,
+        accept_multiple_files=False,
         help=(
-            "No necesitas descomprimir el archivo. La aplicación abre el "
-            "Excel directamente y lee sus hojas."
+            "Carga el Excel original directamente desde Descargas. La aplicación "
+            "lo lee internamente, sin que tengas que descomprimirlo. "
+            "Se admiten archivos de hasta 500 MB en este cargador."
         ),
     )
 
@@ -1699,7 +1706,9 @@ with st.sidebar:
     meta = data.get("metadata", {})
     st.markdown("### 📚 Base de datos")
     st.caption(f"Fuente activa: {meta.get('source_file', 'Excel de septiembre 2026')}")
-    st.caption(f"Versión: {meta.get('version', '2.0')}")
+    st.caption(f"Versión de la aplicación: {APP_VERSION}")
+    st.caption(f"Actualización: {APP_UPDATED}")
+    st.caption(f"Versión de la base: {meta.get('version', APP_VERSION)}")
     if meta.get("source_size_mb") is not None:
         st.caption(f"Tamaño procesado: {meta.get('source_size_mb')} MB")
 
